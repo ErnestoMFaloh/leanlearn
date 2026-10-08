@@ -91,12 +91,25 @@ def length {α : Type} : List α → Nat
   | _ :: xs => 1 + length xs
   -- END SOLUTION
 
+-- TESTS
+#guard length ([] : List Nat) = 0
+#guard length [7] = 1
+#guard length ["a", "b", "c"] = 3
+-- END TESTS
+
 /-- Reverses a list. -/
 def reverse {α : Type} : List α → List α
   -- SOLUTION: | _ => sorry
   | []      => []
   | x :: xs => reverse xs ++ [x]
   -- END SOLUTION
+
+-- TESTS
+#guard reverse ([] : List Nat) = []
+#guard reverse [1] = [1]
+#guard reverse [1, 2, 3] = [3, 2, 1]
+#guard reverse ["a", "b"] = ["b", "a"]
+-- END TESTS
 
 /-- A binary tree of natural numbers. Implement `size`. -/
 inductive Tree where
@@ -108,5 +121,11 @@ def Tree.size : Tree → Nat
   | .leaf              => 0
   | .node left _ right => left.size + 1 + right.size
   -- END SOLUTION
+
+-- TESTS
+#guard Tree.leaf.size = 0
+#guard (Tree.node .leaf 5 .leaf).size = 1
+#guard (Tree.node (.node .leaf 1 .leaf) 2 (.node .leaf 3 (.node .leaf 4 .leaf))).size = 4
+-- END TESTS
 
 end Programming

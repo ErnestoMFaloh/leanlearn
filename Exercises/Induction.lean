@@ -82,6 +82,10 @@ It is already proved above as `length_append`.
 def reverse {α : Type} : List α → List α
   | _ => sorry
 
+-- Tests (`lake exe check` runs them for you):
+-- #guard reverse ([] : List Nat) = []
+-- #guard reverse [1, 2, 3] = [3, 2, 1]
+
 theorem length_reverse {α : Type} (xs : List α) :
     length (reverse xs) = length xs := by
   sorry

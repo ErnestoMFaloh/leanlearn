@@ -9,3 +9,9 @@ name = "Exercises"
 # The worked solutions, and the source of truth for the exercises.
 [[lean_lib]]
 name = "Solutions"
+
+# `lake exe check`: reports which exercises are solved (see Checker.lean).
+[[lean_exe]]
+name = "check"
+root = "Checker"
+supportInterpreter = true

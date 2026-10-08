@@ -1,0 +1,27 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Exercises are generated from the current solutions
+        run: python3 scripts/generate.py --check
+
+      - name: Build exercises and solutions
+        uses: leanprover/lean-action@v1
+
+      - name: Solutions have no sorry
+        run: |
+          if lake build Solutions 2>&1 | grep "declaration uses 'sorry'"; then
+            echo "::error::Solutions/ still contains sorry"
+            exit 1
+          fi
+
+      - name: The checker accepts every solution
+        run: lake exe check --dir Solutions --strict

@@ -93,6 +93,11 @@ def reverse {α : Type} : List α → List α
   | x :: xs => append (reverse xs) [x]
   -- END SOLUTION
 
+-- TESTS
+#guard reverse ([] : List Nat) = []
+#guard reverse [1, 2, 3] = [3, 2, 1]
+-- END TESTS
+
 theorem length_reverse {α : Type} (xs : List α) :
     length (reverse xs) = length xs := by
   -- SOLUTION

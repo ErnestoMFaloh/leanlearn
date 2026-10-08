@@ -10,6 +10,9 @@ Solutions mark the parts a learner must write with these comment lines:
     -- SOLUTION ONLY            the block is removed from the exercises
     -- END SOLUTION ONLY        (e.g. helper lemmas that would give hints)
 
+    -- TESTS                    the block is commented out in the exercises,
+    -- END TESTS                where `lake exe check` runs it for the learner
+
 The replacement keeps the indentation of the opening marker.
 
 Usage:
@@ -29,6 +32,9 @@ BEGIN = re.compile(r"^(\s*)-- SOLUTION(?::(.*))?$")
 END = re.compile(r"^\s*-- END SOLUTION$")
 BEGIN_ONLY = re.compile(r"^\s*-- SOLUTION ONLY$")
 END_ONLY = re.compile(r"^\s*-- END SOLUTION ONLY$")
+BEGIN_TESTS = re.compile(r"^(\s*)-- TESTS$")
+END_TESTS = re.compile(r"^\s*-- END TESTS$")
+MARKERS = [BEGIN, END, BEGIN_ONLY, END_ONLY, BEGIN_TESTS, END_TESTS]
 
 
 def header(name: str) -> str:
@@ -41,30 +47,30 @@ def header(name: str) -> str:
 
 def strip_solutions(text: str, source: str) -> str:
     out = []
-    state = None  # None, "solution" or "only"
+    state = None  # None, "solution", "only" or "tests"
+    closing = {"solution": END, "only": END_ONLY, "tests": END_TESTS}
     start = 0
     for number, line in enumerate(text.splitlines(), start=1):
         if state is None:
             if BEGIN_ONLY.match(line):
                 state, start = "only", number
+            elif m := BEGIN_TESTS.match(line):
+                out.append(m.group(1) + "-- Tests (`lake exe check` runs them for you):")
+                state, start = "tests", number
             elif m := BEGIN.match(line):
                 indent, stub = m.group(1), (m.group(2) or "").strip()
                 out.append(indent + (stub or "sorry"))
                 state, start = "solution", number
-            elif END.match(line) or END_ONLY.match(line):
+            elif any(r.match(line) for r in MARKERS):
                 sys.exit(f"{source}:{number}: closing marker without an opening one")
             else:
                 out.append(line)
-        elif state == "solution":
-            if END.match(line):
-                state = None
-            elif BEGIN.match(line) or BEGIN_ONLY.match(line) or END_ONLY.match(line):
-                sys.exit(f"{source}:{number}: unexpected marker inside the block opened at line {start}")
-        elif state == "only":
-            if END_ONLY.match(line):
-                state = None
-            elif BEGIN.match(line) or BEGIN_ONLY.match(line) or END.match(line):
-                sys.exit(f"{source}:{number}: unexpected marker inside the block opened at line {start}")
+        elif closing[state].match(line):
+            state = None
+        elif any(r.match(line) for r in MARKERS):
+            sys.exit(f"{source}:{number}: unexpected marker inside the block opened at line {start}")
+        elif state == "tests":
+            out.append("-- " + line if line.strip() else line)
     if state is not None:
         sys.exit(f"{source}:{start}: block is never closed")
     return "\n".join(out) + "\n"
