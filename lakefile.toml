@@ -1,6 +1,11 @@
 name = "leanlearn"
 version = "0.1.0"
-defaultTargets = ["LeanLearn"]
+defaultTargets = ["Exercises", "Solutions"]
 
+# Where learners work: generated from `Solutions/` by `scripts/generate.py`.
 [[lean_lib]]
-name = "LeanLearn"
+name = "Exercises"
+
+# The worked solutions, and the source of truth for the exercises.
+[[lean_lib]]
+name = "Solutions"

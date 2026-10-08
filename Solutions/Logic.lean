@@ -64,18 +64,36 @@ theorem rw_example (a b c : Nat) (h₁ : a = b) (h₂ : b = c) : a = c := by
 /-! ## Exercises (replace every `sorry`) -/
 
 theorem ex1 (p q r : Prop) : (p → q) → (q → r) → (p → r) := by
-  sorry
+  -- SOLUTION
+  intro hpq hqr hp
+  exact hqr (hpq hp)
+  -- END SOLUTION
 
 theorem ex2 (p q : Prop) : p ∧ q → p ∨ q := by
-  sorry
+  -- SOLUTION
+  intro h
+  obtain ⟨hp, _⟩ := h
+  left
+  exact hp
+  -- END SOLUTION
 
 theorem ex3 (p q : Prop) : p ∨ q ↔ q ∨ p := by
-  sorry
+  -- SOLUTION
+  -- Each direction is `or_swap`, proved above.
+  constructor
+  · exact or_swap p q
+  · exact or_swap q p
+  -- END SOLUTION
 
 theorem ex4 (p q : Prop) : (p → q) → ¬q → ¬p := by
-  sorry
+  -- SOLUTION
+  intro hpq hnq hp
+  exact hnq (hpq hp)
+  -- END SOLUTION
 
 theorem ex5 (a b : Nat) (h : a = b) : a + 0 = b := by
-  sorry
+  -- SOLUTION
+  rw [Nat.add_zero, h]
+  -- END SOLUTION
 
 end Logic

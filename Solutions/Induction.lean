@@ -57,14 +57,26 @@ theorem gauss (n : Nat) : 2 * sumUpTo n = n * (n + 1) := by
 /-! ## Exercises (replace every `sorry`) -/
 
 theorem ex1 {α : Type} (xs : List α) : append xs [] = xs := by
-  sorry
+  -- SOLUTION
+  induction xs with
+  | nil => rfl
+  | cons x xs ih => simp [append, ih]
+  -- END SOLUTION
 
 theorem ex2 {α : Type} (xs ys zs : List α) :
     append (append xs ys) zs = append xs (append ys zs) := by
-  sorry
+  -- SOLUTION
+  induction xs with
+  | nil => rfl
+  | cons x xs ih => simp [append, ih]
+  -- END SOLUTION
 
 theorem ex3 (n m : Nat) : add (m + 1) n = add m n + 1 := by
-  sorry
+  -- SOLUTION
+  induction n with
+  | zero => rfl
+  | succ k ih => simp [add, ih]
+  -- END SOLUTION
 
 /-! ## Final project of the module
 
@@ -76,10 +88,17 @@ It is already proved above as `length_append`.
 -/
 
 def reverse {α : Type} : List α → List α
-  | _ => sorry
+  -- SOLUTION: | _ => sorry
+  | []      => []
+  | x :: xs => append (reverse xs) [x]
+  -- END SOLUTION
 
 theorem length_reverse {α : Type} (xs : List α) :
     length (reverse xs) = length xs := by
-  sorry
+  -- SOLUTION
+  induction xs with
+  | nil => rfl
+  | cons x xs ih => simp [reverse, length_append, length, ih]
+  -- END SOLUTION
 
 end Induction

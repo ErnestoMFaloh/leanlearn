@@ -1,3 +1,7 @@
+-- Stuck? The solutions are in `Solutions/Programming.lean`.
+-- Contributors: this file is generated from `Solutions/Programming.lean`;
+-- edit that file and run `python3 scripts/generate.py`.
+
 /-!
 # Module 1 — Lean as a programming language
 

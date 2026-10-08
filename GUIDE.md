@@ -47,7 +47,17 @@ source ~/.elan/env
 2. **Examples:** go through the module file, change things and see what
    happens.
 3. **Exercises:** solve every `sorry` in the file.
-4. **Wrap-up:** commit your work.
+4. **Compare:** once the file compiles without `sorry`, open the matching file
+   in `Solutions/` and compare. Different proofs can be equally valid; look for
+   tactics or ideas you didn't use.
+5. **Wrap-up:** commit your work.
+
+### When you get stuck
+
+Try for a while first: being stuck is where most of the learning happens.
+Re-read the examples in the file, check the hints in this guide and look at
+the goal in the Infoview. If you're still stuck, open the solution, read only
+the first line or two, and try to finish on your own.
 
 If you keep your solutions in your own fork, commit every time you finish
 something, even a single exercise:
@@ -62,7 +72,7 @@ git push
 
 ## Module 1 — Lean as a programming language
 
-**File:** `LeanLearn/Programming.lean`
+**File:** `Exercises/Programming.lean` (solutions: `Solutions/Programming.lean`)
 
 **Read:** *Functional Programming in Lean*, chapter 1 ("Getting to Know Lean").
 
@@ -87,7 +97,7 @@ git push
 
 ## Module 2 — Propositions and proofs
 
-**File:** `LeanLearn/Logic.lean`
+**File:** `Exercises/Logic.lean` (solutions: `Solutions/Logic.lean`)
 
 **Read:** *Theorem Proving in Lean 4*, chapters 3 ("Propositions and Proofs")
 and 5 ("Tactics").
@@ -122,7 +132,7 @@ is the best way to get comfortable with tactics. Try to complete the
 
 ## Module 3 — Induction: proving things about your programs
 
-**File:** `LeanLearn/Induction.lean`
+**File:** `Exercises/Induction.lean` (solutions: `Solutions/Induction.lean`)
 
 **Read:** *Theorem Proving in Lean 4*, chapters 7 ("Inductive Types") and
 8 ("Induction and Recursion").

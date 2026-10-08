@@ -13,11 +13,17 @@ project ideas for afterwards) is in [`GUIDE.md`](GUIDE.md).
 
 ## Modules
 
-| # | Topic | File |
-|---|-------|------|
-| 1 | Lean as a programming language: functions, recursion, inductive types | [`LeanLearn/Programming.lean`](LeanLearn/Programming.lean) |
-| 2 | Propositions as types, basic tactics, propositional logic | [`LeanLearn/Logic.lean`](LeanLearn/Logic.lean) |
-| 3 | Induction: proving properties of your own programs | [`LeanLearn/Induction.lean`](LeanLearn/Induction.lean) |
+| # | Topic | Exercises | Solutions |
+|---|-------|-----------|-----------|
+| 1 | Lean as a programming language: functions, recursion, inductive types | [`Exercises/Programming.lean`](Exercises/Programming.lean) | [solutions](Solutions/Programming.lean) |
+| 2 | Propositions as types, basic tactics, propositional logic | [`Exercises/Logic.lean`](Exercises/Logic.lean) | [solutions](Solutions/Logic.lean) |
+| 3 | Induction: proving properties of your own programs | [`Exercises/Induction.lean`](Exercises/Induction.lean) | [solutions](Solutions/Induction.lean) |
+
+Work in `Exercises/`. If you get stuck, or once your file compiles and you want
+to compare approaches, the matching file in `Solutions/` has every exercise
+solved. Each solution sits between `-- SOLUTION` and `-- END SOLUTION` lines.
+There is usually more than one correct answer: if Lean accepts yours, it is
+right.
 
 ## Getting started
 
@@ -33,10 +39,16 @@ project ideas for afterwards) is in [`GUIDE.md`](GUIDE.md).
    cd leanlearn
    lake build
    ```
-   The build succeeds with a warning for each `sorry`. Those are your
-   exercises.
+   The build succeeds with a warning for each `sorry` in `Exercises/`. Those
+   are your exercises.
 3. Open the folder in [VS Code](https://code.visualstudio.com/) with the
    **Lean 4** extension (`leanprover.lean4`) and start with module 1.
+
+## Contributing
+
+Ideas, fixes and new exercises are welcome. See
+[`CONTRIBUTING.md`](CONTRIBUTING.md) for how the exercises are generated from
+the solutions.
 
 ## License
 
