@@ -18,7 +18,7 @@ jobs:
 
       - name: Solutions have no sorry
         run: |
-          if lake build Solutions 2>&1 | grep "declaration uses 'sorry'"; then
+          if lake build Solutions 2>&1 | grep "declaration uses .sorry."; then
             echo "::error::Solutions/ still contains sorry"
             exit 1
           fi

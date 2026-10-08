@@ -53,7 +53,7 @@ would give the answer away), use `-- SOLUTION ONLY` and
 1. `python3 scripts/generate.py` and commit the regenerated files.
 2. `lake build` succeeds.
 3. `Solutions/` has no `sorry` left: `lake build Solutions` prints no
-   `declaration uses 'sorry'` warning.
+   `declaration uses `sorry`` warning.
 4. `python3 scripts/generate.py --check` reports the exercises are up to date.
 
 ## Style
