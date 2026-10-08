@@ -47,10 +47,13 @@ source ~/.elan/env
 2. **Examples:** go through the module file, change things and see what
    happens.
 3. **Exercises:** solve every `sorry` in the file.
-4. **Compare:** once the file compiles without `sorry`, open the matching file
-   in `Solutions/` and compare. Different proofs can be equally valid; look for
-   tactics or ideas you didn't use.
-5. **Wrap-up:** commit your work.
+4. **Check:** run `lake exe check <Module>` (for example
+   `lake exe check Logic`). It marks each exercise as ✅ solved, ⏳ pending or
+   ❌ wrong, and says why.
+5. **Compare:** once an exercise is ✅, open the matching file in `Solutions/`.
+   Different proofs can be equally valid; look for tactics or ideas you didn't
+   use.
+6. **Wrap-up:** commit your work.
 
 ### When you get stuck
 

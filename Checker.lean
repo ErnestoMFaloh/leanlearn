@@ -37,22 +37,47 @@ inductive Status where
 
 structure Elaborated where
   env : Environment
-  /-- Error messages, as (line, first line of the text). -/
+  /-- Error messages, as (line, text). -/
   errors : List (Nat × String)
+  /-- Lines with a ``declaration uses `sorry` `` warning. -/
+  sorryLines : List Nat
+
+/-- Removes leading and trailing whitespace. -/
+def trim (s : String) : String :=
+  let drop (cs : List Char) := cs.dropWhile Char.isWhitespace
+  String.ofList (drop (drop s.toList).reverse).reverse
+
+/-- A message on a single line, shortened if it is long. -/
+def oneLine (s : String) : String :=
+  -- Turn every run of whitespace (including newlines) into a single space.
+  let chars := s.toList.foldl (init := ([] : List Char)) fun acc c =>
+    let c := if c.isWhitespace then ' ' else c
+    if c == ' ' && acc.head? == some ' ' then acc else c :: acc
+  let line := trim (String.ofList chars.reverse)
+  if line.length > 160 then String.ofList (line.toList.take 157) ++ "..." else line
 
 /-- Elaborates a whole Lean file given as text, collecting its errors. -/
 def elaborate (input fileName : String) : IO Elaborated := do
   let inputCtx := Parser.mkInputContext input fileName
   let (header, parserState, messages) ← Parser.parseHeader inputCtx
+  -- Importing with extensions requires this flag, and every import resets it.
+  -- The `lean` executable sets it the same way.
+  unsafe enableInitializersExecution
   let (env, messages) ← processHeader header {} messages inputCtx
+  if messages.hasErrors then
+    let texts ← messages.toList.mapM (·.data.toString)
+    throw <| IO.userError s!"{fileName}: could not load its imports:\n{"\n".intercalate texts}"
   let commandState := Command.mkState env messages {}
   let s ← IO.processCommands inputCtx parserState commandState
   let mut errors := []
+  let mut sorryLines := []
   for msg in s.commandState.messages.toList do
+    let text ← msg.data.toString
     if msg.severity == .error then
-      let text ← msg.data.toString
-      errors := errors ++ [(msg.pos.line, (text.splitOn "\n").headD "")]
-  return { env := s.commandState.env, errors }
+      errors := errors ++ [(msg.pos.line, oneLine text)]
+    else if msg.severity == .warning && text.startsWith "declaration uses" then
+      sorryLines := sorryLines ++ [msg.pos.line]
+  return { env := s.commandState.env, errors, sorryLines }
 
 /-- Runs a `CoreM` action in the given environment. -/
 def runCore (env : Environment) (x : CoreM α) : IO α := do
@@ -62,7 +87,7 @@ def runCore (env : Environment) (x : CoreM α) : IO α := do
 /-- Lines (1-based) of the source that start with the given marker. -/
 def markerLines (source : String) (marker : String) : List Nat :=
   (source.splitOn "\n").zipIdx.filterMap fun (line, i) =>
-    if line.trimLeft == marker || line.trimLeft.startsWith (marker ++ ":") then
+    if trim line == marker || (trim line).startsWith (marker ++ ":") then
       some (i + 1)
     else none
 
@@ -91,7 +116,7 @@ def testBlocks (source : String) : List (Nat × List String) := Id.run do
   let mut blocks := []
   let mut current : Option (Nat × List String) := none
   for i in [0:lines.size] do
-    let line := lines[i]!.trim
+    let line := trim lines[i]!
     match current with
     | none => if line == "-- TESTS" then current := some (i + 1, [])
     | some (start, acc) =>
@@ -125,12 +150,13 @@ def checkExercise (learner solution : Elaborated) (name : Name)
     | match learner.errors.head? with
       | some (line, msg) => return .failed s!"not found; first error at line {line}: {msg}"
       | none => return .failed "not found: was it renamed or deleted?"
-  if let some (first, last) ← declLines learner.env name then
-    if let some (line, msg) := learner.errors.find? (fun (l, _) => first ≤ l && l ≤ last) then
-      return .failed s!"error at line {line}: {msg}"
+  let range ← declLines learner.env name
+  let inRange (line : Nat) := range.any fun (first, last) => first ≤ line && line ≤ last
+  if let some (line, msg) := learner.errors.find? (inRange ·.1) then
+    return .failed s!"error at line {line}: {msg}"
   if actual.type != expected.type || actual.levelParams != expected.levelParams then
     return .failed "its statement was changed; restore it from the solution file"
-  if actual.value?.any (·.hasSorry) then
+  if actual.value?.any (·.hasSorry) || learner.sorryLines.any inRange then
     return .pending "still has `sorry`"
   let axioms ← runCore learner.env (collectAxioms name)
   if axioms.contains ``sorryAx then
@@ -195,7 +221,7 @@ def checkModule (dir : String) (module : String) : IO (Nat × Nat) := do
 def allModules : IO (List String) := do
   let root ← IO.FS.readFile "Solutions.lean"
   return (root.splitOn "\n").filterMap fun line =>
-    (line.trim.dropPrefix? "import Solutions.").map (·.toString)
+    ((trim line).dropPrefix? "import Solutions.").map (·.toString)
 
 end Checker
 

@@ -6,9 +6,11 @@ exercises are all welcome.
 ## How the project is organized
 
 ```
-Solutions/        ← the source of truth: examples + solved exercises
-Exercises/        ← generated from Solutions/; this is where learners work
-scripts/generate.py
+Solutions/              ← the source of truth: examples + solved exercises
+Exercises/              ← generated from Solutions/; this is where learners work
+scripts/generate.py     ← writes Exercises/ from Solutions/
+Checker.lean            ← `lake exe check`: tells learners what they have solved
+scripts/test_checker.py ← makes sure the checker catches wrong answers
 ```
 
 **Never edit `Exercises/` by hand.** Edit the file in `Solutions/` and
@@ -44,6 +46,20 @@ def length {α : Type} : List α → Nat
   -- END SOLUTION
 ```
 
+For a program, add tests right after it. They run when `Solutions/` is built,
+and in `Exercises/` they appear commented out so learners can see what is
+expected; `lake exe check` runs them against the learner's code:
+
+```lean
+-- TESTS
+#guard length [7] = 1
+#guard length ["a", "b", "c"] = 3
+-- END TESTS
+```
+
+`lake exe check` treats every declaration containing a `-- SOLUTION` marker
+as an exercise.
+
 To keep something out of the exercises entirely (such as a helper lemma that
 would give the answer away), use `-- SOLUTION ONLY` and
 `-- END SOLUTION ONLY`.
@@ -52,9 +68,13 @@ would give the answer away), use `-- SOLUTION ONLY` and
 
 1. `python3 scripts/generate.py` and commit the regenerated files.
 2. `lake build` succeeds.
-3. `Solutions/` has no `sorry` left: `lake build Solutions` prints no
-   `declaration uses `sorry`` warning.
+3. `lake exe check --dir Solutions --strict` reports every exercise as solved.
+   This also confirms `Solutions/` has no `sorry` left and that the tests in
+   `-- TESTS` blocks pass.
 4. `python3 scripts/generate.py --check` reports the exercises are up to date.
+5. If you changed `Checker.lean`: `python3 scripts/test_checker.py` passes.
+
+CI runs all of these on every push.
 
 ## Style
 

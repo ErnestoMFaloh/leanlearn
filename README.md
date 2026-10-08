@@ -19,11 +19,28 @@ project ideas for afterwards) is in [`GUIDE.md`](GUIDE.md).
 | 2 | Propositions as types, basic tactics, propositional logic | [`Exercises/Logic.lean`](Exercises/Logic.lean) | [solutions](Solutions/Logic.lean) |
 | 3 | Induction: proving properties of your own programs | [`Exercises/Induction.lean`](Exercises/Induction.lean) | [solutions](Solutions/Induction.lean) |
 
-Work in `Exercises/`. If you get stuck, or once your file compiles and you want
-to compare approaches, the matching file in `Solutions/` has every exercise
-solved. Each solution sits between `-- SOLUTION` and `-- END SOLUTION` lines.
-There is usually more than one correct answer: if Lean accepts yours, it is
-right.
+Work in `Exercises/`. To see how you are doing, run:
+
+```
+$ lake exe check Logic
+Logic (Exercises/Logic.lean)
+  ✅ ex1
+  ✅ ex2
+  ❌ ex3: error at line 76: Type mismatch hp has type p but is expected to have type q
+  ⏳ ex4: still has `sorry`
+  ⏳ ex5: still has `sorry`
+  2/5 solved
+```
+
+The checker never compares your answer with the solution as text, because
+there is usually more than one correct answer. An exercise counts as solved
+when it compiles without `sorry`, its statement is unchanged, it relies on no
+extra axioms and, for programs, its tests pass. Run `lake exe check` with no
+module name to check them all.
+
+If you get stuck, or once an exercise is solved and you want to compare
+approaches, the matching file in `Solutions/` has every exercise solved
+between `-- SOLUTION` and `-- END SOLUTION` lines.
 
 ## Getting started
 

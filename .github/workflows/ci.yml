@@ -25,3 +25,6 @@ jobs:
 
       - name: The checker accepts every solution
         run: lake exe check --dir Solutions --strict
+
+      - name: The checker catches unfinished and wrong exercises
+        run: python3 scripts/test_checker.py
