@@ -9,7 +9,9 @@ definition or proof. Lean checks your work for you: when a file compiles with no
 `sorry` left, you have solved it.
 
 The full study guide (what to read, key ideas and hints for each module, plus
-project ideas for afterwards) is in [`GUIDE.md`](GUIDE.md).
+project ideas for afterwards) is in [`GUIDE.md`](GUIDE.md), and on the
+**[website](https://ernestomfaloh.github.io/leanlearn/)**, where you can also
+open each module in the Lean playground and solve it in your browser.
 
 ## Modules
 
