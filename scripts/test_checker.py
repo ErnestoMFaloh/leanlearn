@@ -20,24 +20,30 @@ BROKEN = ROOT / ".lake" / "checker-test"
 # (file, original text, replacement): each one breaks an exercise on purpose.
 MISTAKES = [
     # Wrong program: its tests fail.
-    ("Programming.lean", "| x :: xs => reverse xs ++ [x]", "| x :: xs => x :: reverse xs"),
+    ("GettingToKnow.lean", "| x :: xs => reverse xs ++ [x]", "| x :: xs => x :: reverse xs"),
     # Proof left unfinished.
-    ("Logic.lean", "  intro hpq hqr hp\n  exact hqr (hpq hp)\n", "  sorry\n"),
+    ("Propositions.lean", "  intro hpq hqr hp\n  exact hqr (hpq hp)\n", "  sorry\n"),
     # Proof that does not compile.
-    ("Logic.lean", "  left\n  exact hp", "  right\n  exact hp"),
+    ("Propositions.lean", "  left\n  exact hp", "  right\n  exact hp"),
     # Proof that cheats with a new axiom.
-    ("Logic.lean", "theorem ex4", "axiom cheat : ∀ {p : Prop}, p\n\ntheorem ex4"),
-    ("Logic.lean", "  intro hpq hnq hp\n  exact hnq (hpq hp)\n", "  exact cheat\n"),
+    ("Propositions.lean", "theorem ex4", "axiom cheat : ∀ {p : Prop}, p\n\ntheorem ex4"),
+    ("Propositions.lean", "  intro hpq hnq hp\n  exact hnq (hpq hp)\n", "  exact cheat\n"),
     # Statement made easier.
-    ("Logic.lean", "(h : a = b) : a + 0 = b := by", "(h : a = b) : a = b := by"),
-    ("Logic.lean", "  rw [Nat.add_zero, h]\n", "  exact h\n"),
+    ("Propositions.lean", "(h : a = b) : a + 0 = b := by", "(h : a = b) : a = b := by"),
+    ("Propositions.lean", "  rw [Nat.add_zero, h]\n", "  exact h\n"),
     # Definition left unfinished; the theorem about it then breaks too.
     ("Induction.lean", "  | []      => []\n  | x :: xs => append (reverse xs) [x]\n", "  | _ => sorry\n"),
 ]
 
 EXPECTED_BROKEN = {
-    "Programming": {"length": "✅", "reverse": "❌", "Tree.size": "✅"},
-    "Logic": {"ex1": "⏳", "ex2": "❌", "ex3": "✅", "ex4": "❌", "ex5": "❌"},
+    "GettingToKnow": {
+        "joinStringsWith": "✅", "volume": "✅", "RectangularPrism.volume": "✅",
+        "Segment.length": "✅", "Tree.size": "✅", "howManyDogs": "✅", "length": "✅",
+        "reverse": "❌", "last?": "✅", "List.findFirst?": "✅", "Prod.switch": "✅",
+        "zip": "✅", "take": "✅", "distribute": "✅", "doubleToSum": "✅",
+        "countChar": "✅", "Tree.insert": "✅", "Tree.toList": "✅",
+    },
+    "Propositions": {"ex1": "⏳", "ex2": "❌", "ex3": "✅", "ex4": "❌", "ex5": "❌"},
     "Induction": {"ex1": "✅", "ex2": "✅", "ex3": "✅", "reverse": "⏳", "length_reverse": "❌"},
 }
 

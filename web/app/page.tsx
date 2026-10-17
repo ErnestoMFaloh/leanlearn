@@ -3,8 +3,8 @@ import { ModuleProgress } from "@/components/ModuleProgress";
 import { modules } from "@/lib/content";
 import { highlightLean } from "@/lib/render";
 
-const checkOutput = `$ lake exe check Logic
-Logic (Exercises/Logic.lean)
+const checkOutput = `$ lake exe check Propositions
+Propositions (Exercises/Propositions.lean)
   ✅ ex1
   ✅ ex2
   ❌ ex3: error at line 76: Type mismatch …

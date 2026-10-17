@@ -1,3 +1,3 @@
-import Solutions.Programming
-import Solutions.Logic
+import Solutions.GettingToKnow
+import Solutions.Propositions
 import Solutions.Induction

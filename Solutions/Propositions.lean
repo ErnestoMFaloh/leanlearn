@@ -11,7 +11,7 @@ Tip: in tactic mode (`by`), put the cursor after each line and watch
 how the *goal* changes in the Infoview.
 -/
 
-namespace Logic
+namespace Propositions
 
 /-! ## 1. Equalities by computation: `rfl` -/
 
@@ -96,4 +96,4 @@ theorem ex5 (a b : Nat) (h : a = b) : a + 0 = b := by
   rw [Nat.add_zero, h]
   -- END SOLUTION
 
-end Logic
+end Propositions

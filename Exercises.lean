@@ -1,3 +1,3 @@
-import Exercises.Programming
-import Exercises.Logic
+import Exercises.GettingToKnow
+import Exercises.Propositions
 import Exercises.Induction
