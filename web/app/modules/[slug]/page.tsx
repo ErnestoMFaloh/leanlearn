@@ -8,6 +8,12 @@ import { Prose } from "@/components/Prose";
 import { BLOB_URL, modules, playgroundUrl } from "@/lib/content";
 import { highlightLean, renderMarkdown } from "@/lib/render";
 
+const slugify = (title: string) =>
+  title
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+
 type Params = { params: Promise<{ slug: string }> };
 
 export function generateStaticParams() {
@@ -36,6 +42,18 @@ export default async function ModulePage({ params }: Params) {
       ...e,
       statementHtml: await highlightLean(e.statement),
       solutionHtml: await highlightLean(e.solution),
+    })),
+  );
+
+  const lessons = await Promise.all(
+    m.lessons.map(async (l) => ({
+      ...l,
+      html: l.text ? await renderMarkdown(l.text) : "",
+      items: await Promise.all(
+        l.items.map(async (item) =>
+          item.kind === "code" ? { ...item, html: await highlightLean(item.code) } : item,
+        ),
+      ),
     })),
   );
 
@@ -70,24 +88,43 @@ export default async function ModulePage({ params }: Params) {
       <Prose html={await renderMarkdown(m.guide)} />
 
       <div className="exercises-heading">
-        <h2>Exercises</h2>
+        <h2>Lessons and exercises</h2>
         <ModuleProgress module={m.file} names={m.exercises.map((e) => e.name)} />
       </div>
       <p className="muted">
-        Solve them in the file, not here: the playground or VS Code shows the goal at each step. Tick an
-        exercise once <code>lake exe check</code> marks it ✅ (or it compiles without{" "}
-        <code>sorry</code> in the playground).
+        Each lesson explains what its exercises need. Solve them in the file, not here: the playground or VS
+        Code shows the goal at each step. Tick an exercise once <code>lake exe check</code> marks it ✅ (or it
+        compiles without <code>sorry</code> in the playground).
       </p>
-      {exercises.map((e, i) => (
-        <ExerciseCard
-          key={e.name}
-          module={m.file}
-          index={i + 1}
-          name={e.name}
-          statementHtml={e.statementHtml}
-          solutionHtml={e.solutionHtml}
-          tests={e.tests}
-        />
+      {lessons.map((lesson) => (
+        <section key={lesson.title} className="lesson">
+          <h2 id={slugify(lesson.title)}>{lesson.title}</h2>
+          {lesson.html && <Prose html={lesson.html} />}
+          {lesson.readMore && (
+            <p className="read-more">
+              <a href={lesson.readMore} target="_blank" rel="noreferrer">
+                Read more in the book →
+              </a>
+            </p>
+          )}
+          {lesson.items.map((item, i) => {
+            if (item.kind === "code") {
+              return <div key={i} className="code" dangerouslySetInnerHTML={{ __html: item.html }} />;
+            }
+            const e = exercises.find((x) => x.name === item.name)!;
+            return (
+              <ExerciseCard
+                key={e.name}
+                module={m.file}
+                index={exercises.indexOf(e) + 1}
+                name={e.name}
+                statementHtml={e.statementHtml}
+                solutionHtml={e.solutionHtml}
+                tests={e.tests}
+              />
+            );
+          })}
+        </section>
       ))}
 
       <nav className="pager">

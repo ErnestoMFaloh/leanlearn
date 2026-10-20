@@ -3,7 +3,7 @@
 -- edit that file and run `python3 scripts/generate.py`.
 
 /-!
-# Module 2 — Propositions and proofs
+# Module 3 — Propositions and proofs
 
 Goals:
 * Understand that propositions are types and proofs are terms.

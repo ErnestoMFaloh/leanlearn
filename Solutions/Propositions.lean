@@ -1,5 +1,5 @@
 /-!
-# Module 2 — Propositions and proofs
+# Module 3 — Propositions and proofs
 
 Goals:
 * Understand that propositions are types and proofs are terms.

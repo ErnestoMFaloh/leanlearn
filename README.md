@@ -18,8 +18,9 @@ open each module in the Lean playground and solve it in your browser.
 | # | Topic | Exercises | Solutions |
 |---|-------|-----------|-----------|
 | 1 | Getting to know Lean: functions, structures, inductive types, polymorphism | [`Exercises/GettingToKnow.lean`](Exercises/GettingToKnow.lean) | [solutions](Solutions/GettingToKnow.lean) |
-| 2 | Propositions as types, basic tactics, propositional logic | [`Exercises/Propositions.lean`](Exercises/Propositions.lean) | [solutions](Solutions/Propositions.lean) |
-| 3 | Induction: proving properties of your own programs | [`Exercises/Induction.lean`](Exercises/Induction.lean) | [solutions](Solutions/Induction.lean) |
+| 2 | Hello, World!: programs with `IO`, `do` blocks, a `cat` clone | [`Exercises/HelloWorld.lean`](Exercises/HelloWorld.lean) | [solutions](Solutions/HelloWorld.lean) |
+| 3 | Propositions as types, basic tactics, propositional logic | [`Exercises/Propositions.lean`](Exercises/Propositions.lean) | [solutions](Solutions/Propositions.lean) |
+| 4 | Induction: proving properties of your own programs | [`Exercises/Induction.lean`](Exercises/Induction.lean) | [solutions](Solutions/Induction.lean) |
 
 Work in `Exercises/`. To see how you are doing, run:
 
