@@ -48,7 +48,7 @@ source ~/.elan/env
    happens.
 3. **Exercises:** solve every `sorry` in the file.
 4. **Check:** run `lake exe check <Module>` (for example
-   `lake exe check Logic`). It marks each exercise as ✅ solved, ⏳ pending or
+   `lake exe check Propositions`). It marks each exercise as ✅ solved, ⏳ pending or
    ❌ wrong, and says why.
 5. **Compare:** once an exercise is ✅, open the matching file in `Solutions/`.
    Different proofs can be equally valid; look for tactics or ideas you didn't
@@ -73,34 +73,58 @@ git push
 
 ---
 
-## Module 1 — Lean as a programming language
+## Module 1 — Getting to know Lean
 
-**File:** `Exercises/Programming.lean` (solutions: `Solutions/Programming.lean`)
+**File:** `Exercises/GettingToKnow.lean` (solutions: `Solutions/GettingToKnow.lean`)
 
 **Read:** *Functional Programming in Lean*, chapter 1 ("Getting to Know Lean").
+The file has one section per section of the chapter, so you can read and
+practice side by side.
 
 **Key ideas:**
 
 - `#eval` evaluates an expression and `#check` shows its type.
-- `def` defines functions. Types are written after `:`.
-- Pattern matching with `|` and `match`.
-- Recursion: Lean must check that it terminates, and it can when the recursive
-  call uses a "smaller" argument (`n` instead of `n + 1`, `xs` instead of
+- `def` defines functions and also types: types are values like any other.
+- A function with several arguments takes them one at a time, so
+  `maximum 3` is itself a function.
+- `structure` groups values in named fields. Structures are never modified:
+  `{ p with x := 0 }` builds an updated copy.
+- `inductive` defines a type by its constructors, and pattern matching takes a
+  value apart. Recursion must terminate: Lean accepts it when each recursive
+  call is on a smaller argument (`n` instead of `n + 1`, `xs` instead of
   `x :: xs`).
-- `inductive` defines new types and `structure` defines records with fields.
+- Polymorphic functions take types as (usually implicit) arguments. The basic
+  polymorphic types are `List`, `Option` (a value that may be missing), `Prod`
+  (`α × β`, both values) and `Sum` (`α ⊕ β`, one or the other).
 
-**Exercises:** `length`, `reverse` and `Tree.size`.
+**Exercises:**
 
-**Hint:** for `reverse`, the `++` operator appends two lists.
+- Functions: `joinStringsWith`, `volume`.
+- Structures: `RectangularPrism.volume`, `Segment.length`.
+- Datatypes and patterns: `Tree.size`, `howManyDogs`.
+- Polymorphism: `length`, `reverse`, `last?`, `List.findFirst?`,
+  `Prod.switch`, `zip`, `take`, `distribute`, `doubleToSum`.
+- Strings: `countChar`.
+- **Final project:** a binary search tree with `Tree.insert` and
+  `Tree.toList`.
 
-**Extra challenge:** implement `Tree.insert` for a binary search tree and
-`Tree.toList`, which traverses it in order.
+**Hints:**
+
+- For `reverse`, the `++` operator appends two lists.
+- `zip` and `take` can match on two values at once: `match n, xs with`.
+- For `distribute`, match on the pair and on which side of the sum it holds:
+  `| (a, .inl b) => ...`.
+- `Tree.insert` compares the new value with the node's value to decide which
+  subtree it goes into.
+
+**Extra challenge:** write `Tree.contains : Nat → Tree → Bool`, which only
+looks in the subtree where the value could be.
 
 ---
 
 ## Module 2 — Propositions and proofs
 
-**File:** `Exercises/Logic.lean` (solutions: `Solutions/Logic.lean`)
+**File:** `Exercises/Propositions.lean` (solutions: `Solutions/Propositions.lean`)
 
 **Read:** *Theorem Proving in Lean 4*, chapters 3 ("Propositions and Proofs")
 and 5 ("Tactics").

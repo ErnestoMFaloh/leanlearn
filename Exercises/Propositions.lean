@@ -1,5 +1,5 @@
--- Stuck? The solutions are in `Solutions/Logic.lean`.
--- Contributors: this file is generated from `Solutions/Logic.lean`;
+-- Stuck? The solutions are in `Solutions/Propositions.lean`.
+-- Contributors: this file is generated from `Solutions/Propositions.lean`;
 -- edit that file and run `python3 scripts/generate.py`.
 
 /-!
@@ -15,7 +15,7 @@ Tip: in tactic mode (`by`), put the cursor after each line and watch
 how the *goal* changes in the Infoview.
 -/
 
-namespace Logic
+namespace Propositions
 
 /-! ## 1. Equalities by computation: `rfl` -/
 
@@ -82,4 +82,4 @@ theorem ex4 (p q : Prop) : (p → q) → ¬q → ¬p := by
 theorem ex5 (a b : Nat) (h : a = b) : a + 0 = b := by
   sorry
 
-end Logic
+end Propositions

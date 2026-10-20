@@ -18,7 +18,7 @@ that contain a `-- SOLUTION` marker (see `CONTRIBUTING.md`).
 Usage:
 
     lake exe check                   check every module
-    lake exe check Logic Induction   check only these modules
+    lake exe check Propositions Induction   check only these modules
     lake exe check --dir Solutions   check another folder (used in CI)
     lake exe check --strict          exit with an error unless all is solved
 -/
@@ -167,7 +167,7 @@ def checkExercise (learner solution : Elaborated) (name : Name)
     return .failed s!"a test failed: {msg}"
   return .solved
 
-/-- Shows a name without its module namespace: `Programming.Tree.size` ↦ `Tree.size`. -/
+/-- Shows a name without its module namespace: `GettingToKnow.Tree.size` ↦ `Tree.size`. -/
 def shortName (name : Name) : String :=
   match name.components with
   | [single] => single.toString

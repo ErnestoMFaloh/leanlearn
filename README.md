@@ -17,15 +17,15 @@ open each module in the Lean playground and solve it in your browser.
 
 | # | Topic | Exercises | Solutions |
 |---|-------|-----------|-----------|
-| 1 | Lean as a programming language: functions, recursion, inductive types | [`Exercises/Programming.lean`](Exercises/Programming.lean) | [solutions](Solutions/Programming.lean) |
-| 2 | Propositions as types, basic tactics, propositional logic | [`Exercises/Logic.lean`](Exercises/Logic.lean) | [solutions](Solutions/Logic.lean) |
+| 1 | Getting to know Lean: functions, structures, inductive types, polymorphism | [`Exercises/GettingToKnow.lean`](Exercises/GettingToKnow.lean) | [solutions](Solutions/GettingToKnow.lean) |
+| 2 | Propositions as types, basic tactics, propositional logic | [`Exercises/Propositions.lean`](Exercises/Propositions.lean) | [solutions](Solutions/Propositions.lean) |
 | 3 | Induction: proving properties of your own programs | [`Exercises/Induction.lean`](Exercises/Induction.lean) | [solutions](Solutions/Induction.lean) |
 
 Work in `Exercises/`. To see how you are doing, run:
 
 ```
-$ lake exe check Logic
-Logic (Exercises/Logic.lean)
+$ lake exe check Propositions
+Propositions (Exercises/Propositions.lean)
   ✅ ex1
   ✅ ex2
   ❌ ex3: error at line 76: Type mismatch hp has type p but is expected to have type q
