@@ -62,9 +62,23 @@ export type Exercise = {
   statement: string;
   /** The same declaration solved, without the markers. */
   solution: string;
-  /** The `#guard` lines that `lake exe check` runs for it. */
+  /** The test commands (`#guard`, `#eval`) that `lake exe check` runs for it. */
   tests: string[];
 };
+
+/** A `/-! ## ... -/` section of a module file: an explanation, examples and exercises. */
+export type Lesson = {
+  title: string;
+  /** The explanation, as Markdown, without its "Read more:" line. */
+  text: string;
+  /** The book section the explanation links to. */
+  readMore?: string;
+  /** Examples and exercises, in the order of the file. */
+  items: LessonItem[];
+};
+
+/** A piece of a lesson: example code, or an exercise (by name). */
+export type LessonItem = { kind: "code"; code: string } | { kind: "exercise"; name: string };
 
 export type Module = {
   slug: string;
@@ -76,6 +90,7 @@ export type Module = {
   guide: string;
   exercisesSource: string;
   exercises: Exercise[];
+  lessons: Lesson[];
 };
 
 const DECL =
@@ -120,7 +135,7 @@ function parseExercises(solutionSource: string, exerciseSource: string): Exercis
 
     if (BEGIN_TESTS.test(line)) inTests = true;
     else if (END_TESTS.test(line)) inTests = false;
-    else if (inTests && line.trim() !== "") exercises.at(-1)?.tests.push(line.trim());
+    else if (inTests && /^#/.test(line)) exercises.at(-1)?.tests.push(line.trim());
 
     if (BEGIN_SOLUTION.test(line) && current && exercises.at(-1)?.name !== current) {
       exercises.push({
@@ -135,6 +150,57 @@ function parseExercises(solutionSource: string, exerciseSource: string): Exercis
     }
   }
   return exercises;
+}
+
+const LESSON = /^\/-! ## (.+?)(?:\s*-\/)?$/;
+const READ_MORE = /^Read more:\s*(\S+)\s*$/m;
+const TESTS_COMMENT = /^-- Tests \(`lake exe check`/;
+
+/**
+ * Splits an exercise file into lessons, one per `/-! ## ... -/` block. The
+ * code before the first one (the module header) is left out.
+ */
+function parseLessons(source: string, names: string[]): Lesson[] {
+  const lines = source.split("\n");
+  const starts = lines.flatMap((line, i) => (LESSON.test(line) ? [i] : []));
+  return starts.map((start, n) => {
+    const end = starts[n + 1] ?? lines.length;
+    const title = LESSON.exec(lines[start])![1];
+    let docEnd = start;
+    while (docEnd < end && !lines[docEnd].trimEnd().endsWith("-/")) docEnd++;
+    const docLines =
+      docEnd === start ? [] : [...lines.slice(start + 1, docEnd), lines[docEnd].replace(/-\/\s*$/, "")];
+    let text = docLines.join("\n");
+    const readMore = READ_MORE.exec(text)?.[1];
+    text = text.replace(READ_MORE, "").trim();
+
+    // The rest of the section, cut at each exercise. Tests and namespace
+    // lines are left out.
+    const body = lines.slice(docEnd + 1, end);
+    const items: LessonItem[] = [];
+    let pending: string[] = [];
+    const flush = () => {
+      const code = pending.join("\n").replace(/\n{3,}/g, "\n\n").trim();
+      if (code) items.push({ kind: "code", code });
+      pending = [];
+    };
+    for (let i = 0; i < body.length; i++) {
+      const decl = DECL.exec(body[i]);
+      if (decl && names.includes(decl[1])) {
+        // Its docstring was already collected as code: take it back.
+        pending.splice(pending.length - (i - withDocstring(body, i)));
+        flush();
+        items.push({ kind: "exercise", name: decl[1] });
+        while (i + 1 < body.length && body[i + 1].trim() !== "") i++;
+      } else if (TESTS_COMMENT.test(body[i])) {
+        while (i + 1 < body.length && body[i + 1].startsWith("--")) i++;
+      } else if (!/^(namespace|end) \S+$/.test(body[i])) {
+        pending.push(body[i]);
+      }
+    }
+    flush();
+    return { title, text, readMore, items };
+  });
 }
 
 /** The bullet points under `Goals:` in the file's opening `/-! ... -/` block. */
@@ -161,6 +227,7 @@ export function modules(): Module[] {
       if (!heading || !fileLine) return null;
       const file = fileLine[1];
       const exercisesSource = read(`Exercises/${file}.lean`);
+      const exercises = parseExercises(read(`Solutions/${file}.lean`), exercisesSource);
       return {
         slug: file.toLowerCase(),
         file,
@@ -169,7 +236,8 @@ export function modules(): Module[] {
         goals: parseGoals(exercisesSource),
         guide: s.body.replace(fileLine[0], "").trim(),
         exercisesSource,
-        exercises: parseExercises(read(`Solutions/${file}.lean`), exercisesSource),
+        exercises,
+        lessons: parseLessons(exercisesSource, exercises.map((e) => e.name)),
       };
     })
     .filter((m): m is Module => m !== null)

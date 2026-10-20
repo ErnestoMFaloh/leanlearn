@@ -122,7 +122,72 @@ looks in the subtree where the value could be.
 
 ---
 
-## Module 2 — Propositions and proofs
+## Module 2 — Hello, World!
+
+**File:** `Exercises/HelloWorld.lean` (solutions: `Solutions/HelloWorld.lean`)
+
+**Read:** *Functional Programming in Lean*, chapter 2 ("Hello, World!"). Each
+section of the file starts with an explanation of what you need for its
+exercises, and links to the matching section of the book.
+
+**Key ideas:**
+
+- A program is a value of type `IO Unit`: a *description* of actions. Lean
+  carries the actions out when the program runs, not when it is defined.
+- In a `do` block, `let x ← action` runs the action and names its result;
+  `let x := e` only names a value. An action named with `:=` runs each time it
+  is used as a step.
+- Actions are ordinary values: you can keep them in a list, pass them to a
+  function and run them later.
+- `IO.getStdin` gives the standard input. `getLine` returns the line *with*
+  its newline, and `""` at the end of the input.
+- A loop over a stream is written with recursion. Lean can't prove that it
+  stops, so it is a `partial def`.
+- `main` can take the command-line arguments and return an exit code; error
+  messages go to the standard error with `IO.eprintln`.
+- `(← e)`, `return`, `unless`, `for` and `let mut` keep `do` blocks short.
+
+**Exercises:**
+
+- Running a program: `introduce`.
+- Step by step: `mysteryOutput`, `withBorder`, `runBackwards`, `retry`.
+- Starting a project: `greeter`.
+- A `wc` clone: `readAll`, `Counts.of`, `wc`.
+- Conveniences: `findWord`.
+- **Final project:** a guessing game with `hint` and `play`.
+
+The tests run each program with a made-up input, using `run` (defined at the
+top of the file). You can use it yourself: `#eval run "mango\n" favouriteFruit`.
+
+**Hints:**
+
+- For `mysteryOutput`, remember that `let shout := ...` doesn't print anything
+  by itself.
+- In `retry`, `if ← action then ...` runs the action and looks at its result.
+- `readAll` stops when `getLine` returns the empty string.
+- For `findWord`, `String.splitOn "\n"` cuts a text into lines.
+- In `play`, check for the end of the input before trying to read a number.
+
+**Try it in the terminal:** when `play` is solved, play the game with
+
+```bash
+lake env lean --run Exercises/HelloWorld.lean
+```
+
+**Extra challenge:** make a Lake project of your own with `wc` as its `main`:
+
+```bash
+lake new wc
+cd wc
+# copy readAll, wordsOf, Counts, openInput and wc into Main.lean,
+# and add `def main (args : List String) : IO UInt32 := wc args`
+lake build
+echo "hello world" | .lake/build/bin/wc - Main.lean
+```
+
+---
+
+## Module 3 — Propositions and proofs
 
 **File:** `Exercises/Propositions.lean` (solutions: `Solutions/Propositions.lean`)
 
@@ -157,7 +222,7 @@ is the best way to get comfortable with tactics. Try to complete the
 
 ---
 
-## Module 3 — Induction: proving things about your programs
+## Module 4 — Induction: proving things about your programs
 
 **File:** `Exercises/Induction.lean` (solutions: `Solutions/Induction.lean`)
 
@@ -181,7 +246,7 @@ prove that it preserves the length of a list.
 **Hint:** for the final project you will probably need a lemma about
 `length (append xs ys)`. It is already proved in the file as `length_append`.
 
-**When you finish module 3:** `lake build` should succeed **without any
+**When you finish module 4:** `lake build` should succeed **without any
 `sorry`**. That marks the end of the introduction.
 
 ---

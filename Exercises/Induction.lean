@@ -3,7 +3,7 @@
 -- edit that file and run `python3 scripts/generate.py`.
 
 /-!
-# Module 3 — Induction: proving things about your programs
+# Module 4 — Induction: proving things about your programs
 
 Goals:
 * Proofs by induction on `Nat` and `List`.

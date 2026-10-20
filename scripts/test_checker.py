@@ -21,6 +21,8 @@ BROKEN = ROOT / ".lake" / "checker-test"
 MISTAKES = [
     # Wrong program: its tests fail.
     ("GettingToKnow.lean", "| x :: xs => reverse xs ++ [x]", "| x :: xs => x :: reverse xs"),
+    # Wrong program with side effects: its `#eval` tests fail.
+    ("HelloWorld.lean", "    runBackwards actions\n    action\n", "    action\n    runBackwards actions\n"),
     # Proof left unfinished.
     ("Propositions.lean", "  intro hpq hqr hp\n  exact hqr (hpq hp)\n", "  sorry\n"),
     # Proof that does not compile.
@@ -42,6 +44,11 @@ EXPECTED_BROKEN = {
         "reverse": "❌", "last?": "✅", "List.findFirst?": "✅", "Prod.switch": "✅",
         "zip": "✅", "take": "✅", "distribute": "✅", "doubleToSum": "✅",
         "countChar": "✅", "Tree.insert": "✅", "Tree.toList": "✅",
+    },
+    "HelloWorld": {
+        "introduce": "✅", "mysteryOutput": "✅", "withBorder": "✅", "runBackwards": "❌",
+        "retry": "✅", "greeter": "✅", "readAll": "✅", "Counts.of": "✅", "wc": "✅",
+        "findWord": "✅", "hint": "✅", "play": "✅",
     },
     "Propositions": {"ex1": "⏳", "ex2": "❌", "ex3": "✅", "ex4": "❌", "ex5": "❌"},
     "Induction": {"ex1": "✅", "ex2": "✅", "ex3": "✅", "reverse": "⏳", "length_reverse": "❌"},

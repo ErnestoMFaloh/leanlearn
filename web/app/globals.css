@@ -452,6 +452,24 @@ main {
   min-width: 200px;
 }
 
+.lesson {
+  margin-top: 2.4em;
+}
+
+.lesson > h2 {
+  font-size: 1.3rem;
+}
+
+.read-more {
+  font-size: 0.9rem;
+  margin: 4px 0 16px;
+}
+
+.read-more a {
+  font-weight: 500;
+  text-decoration: none;
+}
+
 .exercise {
   background: var(--surface);
   border: 1px solid var(--border);
