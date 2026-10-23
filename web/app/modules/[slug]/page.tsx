@@ -51,7 +51,11 @@ export default async function ModulePage({ params }: Params) {
       html: l.text ? await renderMarkdown(l.text) : "",
       items: await Promise.all(
         l.items.map(async (item) =>
-          item.kind === "code" ? { ...item, html: await highlightLean(item.code) } : item,
+          item.kind === "code"
+            ? { ...item, html: await highlightLean(item.code) }
+            : item.kind === "text"
+              ? { ...item, html: await renderMarkdown(item.text) }
+              : item,
         ),
       ),
     })),
@@ -111,6 +115,7 @@ export default async function ModulePage({ params }: Params) {
             if (item.kind === "code") {
               return <div key={i} className="code" dangerouslySetInnerHTML={{ __html: item.html }} />;
             }
+            if (item.kind === "text") return <Prose key={i} html={item.html} />;
             const e = exercises.find((x) => x.name === item.name)!;
             return (
               <ExerciseCard

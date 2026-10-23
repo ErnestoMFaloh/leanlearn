@@ -20,7 +20,7 @@ BROKEN = ROOT / ".lake" / "checker-test"
 # (file, original text, replacement): each one breaks an exercise on purpose.
 MISTAKES = [
     # Wrong program: its tests fail.
-    ("GettingToKnow.lean", "| x :: xs => reverse xs ++ [x]", "| x :: xs => x :: reverse xs"),
+    ("GettingToKnow.lean", "| x :: _ :: rest => x :: everyOther rest", "| x :: _ :: rest => x :: rest"),
     # Wrong program with side effects: its `#eval` tests fail.
     ("HelloWorld.lean", "    runBackwards actions\n    action\n", "    action\n    runBackwards actions\n"),
     # Proof left unfinished.
@@ -39,11 +39,12 @@ MISTAKES = [
 
 EXPECTED_BROKEN = {
     "GettingToKnow": {
-        "joinStringsWith": "✅", "volume": "✅", "RectangularPrism.volume": "✅",
-        "Segment.length": "✅", "Tree.size": "✅", "howManyDogs": "✅", "length": "✅",
-        "reverse": "❌", "last?": "✅", "List.findFirst?": "✅", "Prod.switch": "✅",
-        "zip": "✅", "take": "✅", "distribute": "✅", "doubleToSum": "✅",
-        "countChar": "✅", "Tree.insert": "✅", "Tree.toList": "✅",
+        "predictedString": "✅", "natPuzzle": "✅", "intPuzzle": "✅", "secondsIn": "✅",
+        "clamp": "✅", "surround": "✅", "Book.newEdition": "✅", "Time.toMinutes": "✅",
+        "Time.later": "✅", "Shape.area": "✅", "power": "✅", "Expr.eval": "✅",
+        "countWhere": "✅", "everyOther": "❌", "firstSome?": "✅", "unzipPairs": "✅",
+        "splitSums": "✅", "isPalindrome": "✅", "initials": "✅", "applyTwice": "✅",
+        "scoreLines": "✅", "Tree.insert": "✅", "Tree.toList": "✅", "Tree.contains": "✅",
     },
     "HelloWorld": {
         "introduce": "✅", "mysteryOutput": "✅", "withBorder": "✅", "runBackwards": "❌",

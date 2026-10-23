@@ -73,12 +73,15 @@ export type Lesson = {
   text: string;
   /** The book section the explanation links to. */
   readMore?: string;
-  /** Examples and exercises, in the order of the file. */
+  /** Explanations, examples and exercises, in the order of the file. */
   items: LessonItem[];
 };
 
-/** A piece of a lesson: example code, or an exercise (by name). */
-export type LessonItem = { kind: "code"; code: string } | { kind: "exercise"; name: string };
+/** A piece of a lesson: an explanation, example code, or an exercise (by name). */
+export type LessonItem =
+  | { kind: "text"; text: string }
+  | { kind: "code"; code: string }
+  | { kind: "exercise"; name: string };
 
 export type Module = {
   slug: string;
@@ -174,8 +177,8 @@ function parseLessons(source: string, names: string[]): Lesson[] {
     const readMore = READ_MORE.exec(text)?.[1];
     text = text.replace(READ_MORE, "").trim();
 
-    // The rest of the section, cut at each exercise. Tests and namespace
-    // lines are left out.
+    // The rest of the section, cut at each explanation and exercise. Tests and
+    // namespace lines are left out.
     const body = lines.slice(docEnd + 1, end);
     const items: LessonItem[] = [];
     let pending: string[] = [];
@@ -192,6 +195,16 @@ function parseLessons(source: string, names: string[]): Lesson[] {
         flush();
         items.push({ kind: "exercise", name: decl[1] });
         while (i + 1 < body.length && body[i + 1].trim() !== "") i++;
+      } else if (body[i].startsWith("/-!")) {
+        // A `/-! ... -/` block inside the lesson is more explanation.
+        flush();
+        const text: string[] = [];
+        for (; i < body.length; i++) {
+          text.push(body[i]);
+          if (body[i].trimEnd().endsWith("-/")) break;
+        }
+        const markdown = text.join("\n").replace(/^\/-!\s?/, "").replace(/\s*-\/\s*$/, "").trim();
+        if (markdown) items.push({ kind: "text", text: markdown });
       } else if (TESTS_COMMENT.test(body[i])) {
         while (i + 1 < body.length && body[i + 1].startsWith("--")) i++;
       } else if (!/^(namespace|end) \S+$/.test(body[i])) {
