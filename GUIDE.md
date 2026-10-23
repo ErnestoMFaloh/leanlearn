@@ -78,17 +78,17 @@ git push
 **File:** `Exercises/GettingToKnow.lean` (solutions: `Solutions/GettingToKnow.lean`)
 
 **Read:** *Functional Programming in Lean*, chapter 1 ("Getting to Know Lean").
-The file has one section per section of the chapter, so you can read and
-practice side by side.
+Each section of the file starts with an explanation of what you need for its
+exercises, and links to the matching section of the book.
 
 **Key ideas:**
 
 - `#eval` evaluates an expression and `#check` shows its type.
 - `def` defines functions and also types: types are values like any other.
 - A function with several arguments takes them one at a time, so
-  `maximum 3` is itself a function.
+  `larger 3` is itself a function.
 - `structure` groups values in named fields. Structures are never modified:
-  `{ p with x := 0 }` builds an updated copy.
+  `{ b with pages := 10 }` builds an updated copy.
 - `inductive` defines a type by its constructors, and pattern matching takes a
   value apart. Recursion must terminate: Lean accepts it when each recursive
   call is on a smaller argument (`n` instead of `n + 1`, `xs` instead of
@@ -99,26 +99,33 @@ practice side by side.
 
 **Exercises:**
 
-- Functions: `joinStringsWith`, `volume`.
-- Structures: `RectangularPrism.volume`, `Segment.length`.
-- Datatypes and patterns: `Tree.size`, `howManyDogs`.
-- Polymorphism: `length`, `reverse`, `last?`, `List.findFirst?`,
-  `Prod.switch`, `zip`, `take`, `distribute`, `doubleToSum`.
-- Strings: `countChar`.
-- **Final project:** a binary search tree with `Tree.insert` and
-  `Tree.toList`.
+- Evaluating expressions and types: `predictedString`, `natPuzzle`,
+  `intPuzzle`.
+- Functions: `secondsIn`, `clamp`, `surround`.
+- Structures: `Book.newEdition`, `Time.toMinutes`, `Time.later`.
+- Datatypes and patterns: `Shape.area`, `power`, `Expr.eval`.
+- Polymorphism: `countWhere`, `everyOther`, `firstSome?`, `unzipPairs`,
+  `splitSums`.
+- Strings: `isPalindrome`, `initials`.
+- Conveniences: `applyTwice`, `scoreLines`.
+- **Final project:** a binary search tree with `Tree.insert`, `Tree.toList`
+  and `Tree.contains`.
 
 **Hints:**
 
-- For `reverse`, the `++` operator appends two lists.
-- `zip` and `take` can match on two values at once: `match n, xs with`.
-- For `distribute`, match on the pair and on which side of the sum it holds:
-  `| (a, .inl b) => ...`.
-- `Tree.insert` compares the new value with the node's value to decide which
-  subtree it goes into.
+- For the puzzles of sections 1 and 2, work the answer out before running
+  anything: the point is to learn how Lean reads expressions.
+- `Time.later` is easier if you first turn the time into minutes.
+- A recursive function on an `Expr` has one case per constructor, and calls
+  itself on the smaller expressions inside.
+- In `unzipPairs` and `splitSums`, call the function once on the rest of the
+  list, name the two parts of its result with `let (xs, ys) := ...`, and add
+  the new entry to the right part.
+- `Tree.insert` and `Tree.contains` compare the value with the node's value to
+  decide which subtree to go into.
 
-**Extra challenge:** write `Tree.contains : Nat → Tree → Bool`, which only
-looks in the subtree where the value could be.
+**Extra challenge:** write `Tree.ofList : List Nat → Tree`, which inserts every
+number of a list, and check that `(Tree.ofList xs).toList` is always sorted.
 
 ---
 

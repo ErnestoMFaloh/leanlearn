@@ -21,13 +21,21 @@ namespace HelloWorld
 
 /-! ## Testing programs
 
-You don't need to understand these helpers yet. `run input action` runs a
-program as if `input` had been typed on the keyboard, and returns everything
-it printed together with its result. Try it:
+In module 1, testing a function was easy: give it some arguments and compare
+its result with the expected one. The programs of this module are different,
+because they read what a person types and print text on the screen, and a test
+can't sit at the keyboard. So before we start, here are a few helpers that
+pretend to be that person.
+
+`run input action` runs a program as if `input` had been typed on the
+keyboard, and returns everything the program printed, together with its
+result. `outputOf` is the same but only returns what was printed, and
+`expect` fails with a message when two values are different. The tests of
+this module are written with them, and you can use them too, for example:
 
     #eval run "mango\n" favouriteFruit
 
-The tests of this module use `run` and `expect`, and you can use them too.
+Their code uses ideas from later chapters, so you don't need to read it now.
 -/
 
 /-- Runs `action` with `input` as its standard input. Returns what it wrote to
@@ -57,20 +65,23 @@ def expect [BEq α] [Repr α] (actual expected : α) : IO Unit :=
 
 /-! ## 1. Running a program
 
-So far every `def` was a value or a function. A *program* is a value of type
-`IO Unit`: a description of actions (printing, reading, ...) that Lean carries
-out when the program runs. `IO.println "hi"` describes "print `hi`"; defining
-it prints nothing, running it does.
+In module 1 a program was an expression, and running it meant working out its
+value. That is a fine way to compute, but a useful program must also talk to
+the outside world: print text, read what the user types, open files. None of
+these is a value that can be worked out. Printing twice is not the same as
+printing once, and reading a line gives a different answer each time.
 
-A `do` block glues actions together, one per line. Inside it:
+Lean solves this by keeping the two worlds apart. A value of type `IO Unit`
+is a *description* of things to do (print this, read that), and Lean only
+carries those things out when the program runs. `IO.println "hi"` is such a
+value: it describes "print `hi`". Defining it prints nothing; running it
+does. Every ordinary function stays the same as in module 1, always giving the
+same result for the same arguments, and only `IO` actions touch the world.
 
-* `IO.getStdin` and `IO.getStdout` give the input and output *streams*;
-* `stream.getLine` reads one line, *including* its final `"\n"`;
-* `s.trimAscii` removes the spaces and newlines around a string (it returns a
-  `String.Slice`, a view into the string; `.toString` turns it back into a
-  `String`).
-
-The last line of the block must have type `IO Unit` (or `IO α` in general).
+A program rarely does just one thing, so we need to put actions in a sequence.
+That is the job of a `do` block: you write one action per line, and the whole
+block is a single action that carries out the lines in order. Its last line
+decides what the block returns.
 
 Read more: https://lean-lang.org/functional_programming_in_lean/Hello___-World___/Running-a-Program/
 -/
@@ -78,6 +89,20 @@ Read more: https://lean-lang.org/functional_programming_in_lean/Hello___-World__
 def hello : IO Unit := IO.println "Hello, world!"
 
 #eval hello  -- Hello, world!
+
+/-! Printing is half of the conversation; the other half is reading. Text
+typed at the keyboard (or sent by another program) arrives through the
+*standard input*, a stream that `IO.getStdin` gives you, and `stream.getLine`
+reads one line from it.
+
+Both of these are actions, and their results are only known when the program
+runs. To use such a result, write `let x ← action` in the `do` block: the
+arrow runs the action at that point and gives its result the name `x`.
+
+The line that was read still ends with its `"\n"`, so `trimAscii` removes the
+spaces and newlines around it. Like `drop` in module 1, `trimAscii` returns a
+slice; `.copy` turns it into a `String` when you need one, for example to call
+`String.toNat?`. -/
 
 def favouriteFruit : IO Unit := do
   let stdin ← IO.getStdin
@@ -97,11 +122,11 @@ def introduce : IO Unit := do
   -- SOLUTION
   let stdin ← IO.getStdin
   IO.println "What is your name?"
-  let name := (← stdin.getLine).trimAscii
+  let name ← stdin.getLine
   IO.println "How old are you?"
-  let age := (← stdin.getLine).trimAscii.toString
-  match age.toNat? with
-  | some n => IO.println s!"Nice to meet you, {name}! Next year you will be {n + 1}."
+  let age ← stdin.getLine
+  match age.trimAscii.copy.toNat? with
+  | some n => IO.println s!"Nice to meet you, {name.trimAscii}! Next year you will be {n + 1}."
   | none   => IO.println "That is not an age."
   -- END SOLUTION
 
@@ -116,23 +141,29 @@ def introduce : IO Unit := do
 
 /-! ## 2. Step by step
 
-Lean runs a `do` block from top to bottom. Two kinds of `let` look alike but
-do different things:
+The `do` blocks of section 1 were short enough to follow at a glance. As they
+grow, it pays to be precise about what happens at each line, because one
+detail surprises almost everyone at first.
 
-* `let x ← action` *runs* `action` now and names its result `x`;
-* `let x := e` only gives `e` a name. Nothing runs. If `e` is an action, it
-  runs every time `x` appears as a line of the block, and not before.
+Lean runs a `do` block from top to bottom, and there are two kinds of `let`
+that look alike but do very different things. `let x ← action`, as we saw,
+*runs* the action at that point and names its result: after
+`let line ← stdin.getLine`, `line` is the text that was read. `let x := e`,
+the `let` of module 1, only gives `e` a name and runs nothing. If `e` is an
+action, `x` is that action, still waiting: it runs each time `x` appears later
+as a line of the block, and not before.
 
-`pure v` is the action that does nothing and returns `v`, so
-`let x ← pure v` is the same as `let x := v`.
-
-Because actions are values, they can be arguments of functions, elements of
-lists and results of functions, like numbers or strings.
+Sometimes a block has to return a value that it already has, without doing
+anything. The action `pure v` is exactly that: it does nothing and returns
+`v`.
 
 Read more: https://lean-lang.org/functional_programming_in_lean/Hello___-World___/Step-By-Step/
 -/
 
--- Try it on paper first: what does this print, and in which order?
+/-! Here is a small program that mixes both kinds of `let`. Before running
+it, work out on paper what it prints and in which order: that is the first
+exercise. -/
+
 def mystery : IO Unit := do
   let shout := IO.println "HEY!"
   let secret ← pure "psst"
@@ -152,18 +183,23 @@ def mysteryOutput : List String :=
 #eval do expect (← outputOf "" mystery) (String.join (mysteryOutput.map (· ++ "\n")))
 -- END TESTS
 
--- An action as an argument: `twice` runs it two times.
+/-! Because actions are values, they can be passed to functions like
+numbers or strings. `twice` receives an action and builds a bigger action that
+runs it two times. -/
+
 def twice (action : IO Unit) : IO Unit := do
   action
   action
 
 #eval twice (IO.println "hip hip hooray")
 
--- A list of actions; building it runs nothing.
+/-! Actions can also be stored in a list, and building the list runs nothing.
+To run them, a `do` block can loop over the list: `for x in xs do` runs the
+indented lines below it once for each entry `x` of `xs`. -/
+
 def lineOfStars : List (IO Unit) :=
   [IO.println "*", IO.println "**", IO.println "***"]
 
--- `for x in xs do ...` runs the block once for each element.
 #eval do
   for action in lineOfStars do
     action
@@ -197,13 +233,18 @@ def runBackwards : List (IO Unit) → IO Unit
 #eval do expect (← outputOf "" (runBackwards [])) ""
 -- END TESTS
 
-/-! Actions can also return values. `askReady` asks a question and returns
-whether the answer was `yes`. -/
+/-! So far our actions only did something, and their type was `IO Unit`,
+where `Unit` means "no interesting result". But an action can also produce a
+value, like `getLine` produces a string. An action of type `IO Bool`, for
+example, does something and then returns a `Bool`. `askReady` asks a question
+and returns whether the answer was `yes`; the last line of its block uses
+`pure` to return the answer. -/
 
 def askReady : IO Bool := do
   IO.println "Ready?"
-  let answer ← (← IO.getStdin).getLine
-  return answer.trimAscii.toString == "yes"
+  let stdin ← IO.getStdin
+  let answer ← stdin.getLine
+  pure (answer.trimAscii.copy == "yes")
 
 /-- Runs `action` until it returns `true`, at most `attempts` times. Returns
 whether it ever returned `true`. -/
@@ -212,7 +253,8 @@ def retry (attempts : Nat) (action : IO Bool) : IO Bool :=
   match attempts with
   | 0     => pure false
   | n + 1 => do
-    if ← action then
+    let ok ← action
+    if ok then
       pure true
     else
       retry n action
@@ -228,16 +270,24 @@ def retry (attempts : Nat) (action : IO Bool) : IO Bool :=
 
 A real program lives in its own Lake project. `lake new hello` creates one
 with a `Main.lean` file, and `lake build` compiles it to
-`.lake/build/bin/hello`. When the program starts, Lean runs its `main`, which
-can have one of these types:
+`.lake/build/bin/hello`. When the program starts, Lean runs the definition
+called `main`.
 
-* `main : IO Unit` ignores the command-line arguments;
-* `main : List String → IO Unit` receives them, as a list of strings;
-* `main : List String → IO UInt32` also returns an *exit code*: `0` means
-  success, anything else means that something went wrong.
+The simplest `main` has type `IO Unit`. If the program needs the words typed
+after its name on the command line, `main` takes them as a `List String`. And
+if it should report whether it worked, it returns a number, the *exit code*:
+`0` means success, and anything else means that something went wrong. So the
+most complete form is `main : List String → IO UInt32`.
 
-Error messages go to the standard error (`IO.eprintln`), not the standard
-output, so that they don't mix with the real output of the program.
+Error messages go to the *standard error* with `IO.eprintln`, instead of the
+standard output, so that they don't get mixed with the real output of the
+program.
+
+A `main` that checks its arguments often wants to stop as soon as something
+is wrong. Inside a `do` block, `return v` does that: it ends the whole block
+at once, with the result `v`, like `return` in other languages. For the same
+reason, an `if` in a `do` block may leave out its `else`. When the condition
+is false, the block simply goes on with the next line.
 
 You can also run a single file that defines `main`, without a project. This
 file defines one at the very end; once the final project is solved, play it
@@ -280,6 +330,11 @@ some value, which is true of `IO` actions.)
 `getLine` returns `""` only at the end of the stream; an empty line in the
 middle is `"\n"`.
 
+The code below often uses a result only once, and naming it with
+`let x ← e` on its own line gets tedious. Writing `(← e)` in the middle of an
+expression does the same in place: `IO.println (← stdin.getLine)` reads a line
+and prints it. Section 5 says more about how it works.
+
 Read more: https://lean-lang.org/functional_programming_in_lean/Hello___-World___/Worked-Example___--cat/
 -/
 
@@ -301,7 +356,7 @@ partial def readAll (stream : IO.FS.Stream) : IO String := do
 
 /-- The words of a string: the pieces between spaces, tabs and newlines. -/
 def wordsOf (s : String) : List String :=
-  (s.split Char.isWhitespace).toList.map (·.toString) |>.filter (!·.isEmpty)
+  ((s.split Char.isWhitespace).toList.map (·.toString)).filter (fun w => !w.isEmpty)
 
 #eval wordsOf "  the cat\tsat\n"  -- ["the", "cat", "sat"]
 
@@ -338,13 +393,32 @@ def openInput (name : String) : IO (Option IO.FS.Stream) := do
   let handle ← IO.FS.Handle.mk name .read
   return some (.ofHandle handle)
 
+/-! The last piece of `wc` has to go through all its inputs and remember
+whether any of them was missing. A `for` loop goes through them, but names in
+Lean never change, so how can the loop remember anything? A `do` block allows
+one exception: a *mutable variable*, declared with `let mut x := v`, can be
+given a new value later with `x := ...`. Lean turns this into ordinary
+definitions behind the scenes, so the rest of the language stays as before. -/
+
+def countLong (words : List String) : Nat := Id.run do
+  let mut count := 0
+  for w in words do
+    if w.length > 5 then
+      count := count + 1
+  return count
+
+#eval countLong ["a", "lengthy", "list", "of", "examples"]  -- 2
+
+/-! (`Id.run do` lets an ordinary function, which is not an `IO` action, use a
+`do` block; chapter 4 explains it.) -/
+
 /-- The `main` of `wc`: for each input in `args`, prints
 `<lines> <words> <chars> <name>`. A missing file prints
 `wc: <name>: no such file` to the standard error, and the other inputs are
 still counted. Returns `1` if any input was missing, and `0` otherwise.
 
-Hint: write a recursive helper, or use `for` with a mutable variable:
-`let mut code := 0` and later `code := 1`. -/
+Hint: use `for` with a mutable variable, `let mut code := 0`, or a recursive
+helper. -/
 def wc (args : List String) : IO UInt32 := do
   -- SOLUTION
   let mut code := 0
@@ -374,24 +448,30 @@ def wc (args : List String) : IO UInt32 := do
 
 /-! ## 5. Additional conveniences
 
-A few things that make `do` blocks shorter:
+Along the way, this module has already shown most of what makes `do` blocks
+pleasant to write: `return`, an `if` without `else`, `for` loops and mutable
+variables. This section looks more closely at the nested action `(← e)` from
+section 4, and adds one more piece of notation.
 
-* `(← e)` runs the action `e` in the middle of an expression:
-  `IO.println (← stdin.getLine)` reads a line and prints it. Lean moves it to
-  its own `let x ← e` line, just before the line where it appears.
-* `if` without `else` and `unless cond do ...` run a step only sometimes.
-* `return v` ends the block early with the result `v`.
-* `for x in xs do ...` loops over a list, and `[0:n]` is the range
-  `0, 1, ..., n - 1`. `let mut x := v` makes a variable that the loop can
-  change with `x := ...`.
+`(← e)` is only a shorthand. Lean turns it into its own `let x ← e` line, just
+before the line where it appears, and then uses `x` in its place. That is why
+the action runs *before* the rest of its line, even if it is written at the
+end, and why `(← e)` can only be used inside a `do` block.
+
+The new piece is `unless cond do ...`, which runs its indented lines only when
+the condition is false. It is the same as `if !cond then ...`, but reads more
+naturally when the lines are the exception.
 
 Read more: https://lean-lang.org/functional_programming_in_lean/Hello___-World___/Additional-Conveniences/
 -/
 
+/-! `shoutBack` reads a line with a nested action, and only prints when the
+line isn't empty. -/
+
 def shoutBack : IO Unit := do
   let line := (← (← IO.getStdin).getLine).trimAscii
   unless line.isEmpty do
-    IO.println line.toString.toUpper
+    IO.println line.copy.toUpper
 
 #eval outputOf "quiet please\n" shoutBack  -- "QUIET PLEASE\n"
 
@@ -447,7 +527,7 @@ partial def play (secret : Nat) (guesses : Nat := 0) : IO Unit := do
   if line.isEmpty then
     IO.println "Bye!"
     return
-  match line.trimAscii.toString.toNat? with
+  match line.trimAscii.copy.toNat? with
   | none =>
     IO.println "That is not a number."
     play secret guesses
