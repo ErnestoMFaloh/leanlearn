@@ -1,5 +1,5 @@
 /-!
-# Module 4 — Induction: proving things about your programs
+# Module 7 — Induction: proving things about your programs
 
 Goals:
 * Proofs by induction on `Nat` and `List`.

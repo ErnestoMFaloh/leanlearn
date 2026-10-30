@@ -24,15 +24,21 @@ MISTAKES = [
     # Wrong program with side effects: its `#eval` tests fail.
     ("HelloWorld.lean", "    runBackwards actions\n    action\n", "    action\n    runBackwards actions\n"),
     # Proof left unfinished.
-    ("Propositions.lean", "  intro hpq hqr hp\n  exact hqr (hpq hp)\n", "  sorry\n"),
+    ("Propositions.lean", "  intro hpq hqr hp\n  apply hqr\n  apply hpq\n  exact hp\n", "  sorry\n"),
     # Proof that does not compile.
-    ("Propositions.lean", "  left\n  exact hp", "  right\n  exact hp"),
+    ("Propositions.lean", "  left\n  exact hq", "  right\n  exact hq"),
     # Proof that cheats with a new axiom.
-    ("Propositions.lean", "theorem ex4", "axiom cheat : ∀ {p : Prop}, p\n\ntheorem ex4"),
+    ("Propositions.lean", "theorem contrapositive", "axiom cheat : ∀ {p : Prop}, p\n\ntheorem contrapositive"),
     ("Propositions.lean", "  intro hpq hnq hp\n  exact hnq (hpq hp)\n", "  exact cheat\n"),
     # Statement made easier.
-    ("Propositions.lean", "(h : a = b) : a + 0 = b := by", "(h : a = b) : a = b := by"),
-    ("Propositions.lean", "  rw [Nat.add_zero, h]\n", "  exact h\n"),
+    ("Propositions.lean", "(h : a = b) : a + b = b + a := by", "(h : a = b) : a + b = a + b := by"),
+    # Wrong instance: its tests fail.
+    ("TypeClasses.lean", '{if c < 10 then "0" else ""}', ""),
+    # Monadic program that tries to go on after an error: it does not compile.
+    ("Monads.lean", "  | .error e => .error e\n  | .ok x => next x\n", "  | .error _ => next default\n  | .ok x => next x\n"),
+    # Wrong applicative instance: it drops the problems of the right side.
+    ("Applicative.lean", "    | .problems ps, .problems qs => .problems (ps ++ qs)\n  -- END SOLUTION\n\n-- TESTS\n#guard (Prod",
+     "    | .problems ps, .problems _ => .problems ps\n  -- END SOLUTION\n\n-- TESTS\n#guard (Prod"),
     # Definition left unfinished; the theorem about it then breaks too.
     ("Induction.lean", "  | []      => []\n  | x :: xs => append (reverse xs) [x]\n", "  | _ => sorry\n"),
 ]
@@ -51,7 +57,40 @@ EXPECTED_BROKEN = {
         "retry": "✅", "greeter": "✅", "readAll": "✅", "Counts.of": "✅", "wc": "✅",
         "findWord": "✅", "hint": "✅", "play": "✅",
     },
-    "Propositions": {"ex1": "⏳", "ex2": "❌", "ex3": "✅", "ex4": "❌", "ex5": "❌"},
+    "Propositions": {
+        "reverseFact": "✅", "takeFact": "✅", "bigPower": "✅", "zeroTimes": "✅",
+        "chain": "⏳", "andToOr": "❌", "contrapositive": "❌", "orComm": "✅",
+        "andOrDistrib": "✅", "rewriteSum": "❌", "rewriteSwap": "✅", "rewriteCall": "✅",
+        "ends": "✅", "middle": "✅", "sumAt?": "✅", "pick": "✅", "squareAt?": "✅",
+        "square": "✅", "minesAround": "✅", "cornerIsSafe": "✅",
+    },
+    # `instHMulNatMoney` fails too: its tests print money with `toString`.
+    "TypeClasses": {
+        "instAddMoney": "✅", "instOfNatMoney": "✅", "instToStringMoney": "❌",
+        "instDescribeOption": "✅", "addAll": "✅", "instAddVec2": "✅",
+        "instHMulNatMoney": "❌", "instHDivMoneyNat": "✅", "runningTotals": "✅",
+        "instGetElemTriple": "✅", "instOrdVersion": "✅", "newest": "✅",
+        "instFunctorTriple": "✅", "instCoeTripleList": "✅", "instCoeFunLine": "✅",
+        "instToStringVersion": "✅", "instMulMat2": "✅", "instOneMat2": "✅", "power": "✅",
+    },
+    # `orderPrice` uses `andThenExcept`, which no longer compiles.
+    "Monads": {
+        "andThenExcept": "❌", "orderPrice": "⏳", "label": "✅", "andThenLogged": "✅",
+        "instMonadLogged": "✅", "keepIf": "✅", "exec": "✅", "execAll": "✅",
+        "popExcept": "✅", "divideExcept": "✅", "parseVersion?": "✅", "labelAll": "✅",
+        "sumEvens": "✅", "safeSum": "✅", "Instr.arity": "✅", "instMonadBank": "✅",
+        "Bank.balance": "✅", "Bank.withdraw": "✅", "Bank.transfer": "✅",
+    },
+    # `checkBooking` fails too: it collects its problems with the broken `<*>`.
+    "Applicative": {
+        "duneEbook": "✅", "basketTotal": "✅", "instApplicativeChecked": "❌",
+        "checkSeats": "✅", "checkEmail": "✅", "checkBooking": "❌", "optionMapId": "✅",
+        "checkedPureSeq": "✅", "checkedPureId": "✅", "answer?": "✅",
+        "instAlternativeChecked": "✅", "checkGroup": "✅", "swap": "✅",
+        "instMonadWithSettings": "✅", "greeting": "✅", "instMonadParser": "✅",
+        "instAlternativeParser": "✅", "satisfy": "✅", "digit": "✅", "many1": "✅",
+        "number": "✅", "sepBy1": "✅", "numbers": "✅",
+    },
     "Induction": {"ex1": "✅", "ex2": "✅", "ex3": "✅", "reverse": "⏳", "length_reverse": "❌"},
 }
 

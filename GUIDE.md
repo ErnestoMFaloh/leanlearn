@@ -194,16 +194,27 @@ echo "hello world" | .lake/build/bin/wc - Main.lean
 
 ---
 
-## Module 3 — Propositions and proofs
+## Module 3 — Propositions, proofs and indexing
 
 **File:** `Exercises/Propositions.lean` (solutions: `Solutions/Propositions.lean`)
 
-**Read:** *Theorem Proving in Lean 4*, chapters 3 ("Propositions and Proofs")
-and 5 ("Tactics").
+**Read:** *Functional Programming in Lean*, the interlude "Propositions,
+Proofs, and Indexing". Sections 3 and 4 go further into logic, following
+*Theorem Proving in Lean 4*. Each section of the file starts with an
+explanation of what you need for its exercises, and links to the matching
+section of a book.
 
-**Central idea:** in Lean, **a proposition is a type and a proof is a value of
-that type**. Proving `p → q` means writing a function that turns proofs of `p`
-into proofs of `q`.
+**Key ideas:**
+
+- In Lean, **a proposition is a type and a proof is a value of that type**.
+  Proving `p → q` means writing a function that turns proofs of `p` into
+  proofs of `q`.
+- `rfl`, `decide` and `simp` prove facts that hold by computation.
+- `by` starts a proof written with tactics. Put the cursor at the end of each
+  line and watch the goal change in the Infoview.
+- `xs[i]` only compiles when Lean has evidence that `i` is in bounds. A
+  function can ask for that evidence as an argument; `xs[i]?` asks for an
+  `Option` instead.
 
 **Tactics in this module:**
 
@@ -218,10 +229,27 @@ into proofs of `q`.
 | Hypothesis `h : p ∨ q` | `cases h with` … |
 | Goal `¬p` | `intro hp` (because `¬p` is `p → False`) |
 | Hypothesis `h : a = b` | `rw [h]` |
-| An equality that holds by computation | `rfl` |
+| An equality that holds by computation | `rfl` or `decide` |
 | Simplify automatically | `simp` |
 
-**Exercises:** `ex1` to `ex5`.
+**Exercises:**
+
+- Propositions and proofs: `reverseFact`, `takeFact`.
+- Tactics: `bigPower`, `zeroTimes`.
+- Connectives: `chain`, `andToOr`, `contrapositive`, `orComm`,
+  `andOrDistrib`.
+- Rewriting with equalities: `rewriteSum`, `rewriteSwap`, `rewriteCall`.
+- Evidence as arguments: `ends`, `middle`.
+- Indexing without evidence: `sumAt?`, `pick`.
+- **Final project:** a minefield, with `squareAt?`, `square`, `minesAround`
+  and the proof `cornerIsSafe`.
+
+**Hints:**
+
+- In `pick`, `xs[i]?` gives an `Option`, and `List.filterMap` keeps only the
+  `some` results.
+- `cornerIsSafe` is a fact about concrete values: once `minesAround` works,
+  `decide` can check it.
 
 **Extra practice:** the [Natural Number Game](https://adam.math.hhu.de/#/g/leanprover-community/nng4)
 is the best way to get comfortable with tactics. Try to complete the
@@ -229,7 +257,146 @@ is the best way to get comfortable with tactics. Try to complete the
 
 ---
 
-## Module 4 — Induction: proving things about your programs
+## Module 4 — Overloading and type classes
+
+**File:** `Exercises/TypeClasses.lean` (solutions: `Solutions/TypeClasses.lean`)
+
+**Read:** *Functional Programming in Lean*, chapter 3 ("Overloading and Type
+Classes"). Each section of the file starts with an explanation of what you
+need for its exercises, and links to the matching section of the book.
+
+**Key ideas:**
+
+- A type class is an interface (`Add`, `ToString`, `OfNat`, ...), and an
+  `instance` implements it for one type. Notation like `+`, `s!` and number
+  literals is built on classes.
+- A function can require an instance with an argument in square brackets,
+  `[Add α]`, and an instance can depend on other instances.
+- `HAdd`, `HMul` and friends allow operations between *different* types,
+  such as a number times an amount of money.
+- `Array` is the efficient sequence type; `GetElem` makes your own types
+  indexable with `xs[i]`.
+- Many standard classes (`BEq`, `Repr`, `Ord`, `Hashable`) can be derived with
+  `deriving`. `Functor` gives `<$>`, which applies a function inside a
+  container.
+- Coercions (`Coe`, `CoeFun`) let Lean convert values automatically, for
+  instance using a structure as if it were a function.
+
+**Exercises:**
+
+- Classes and instances: `Money` with `Add`, `OfNat` and `ToString`.
+- Type classes and polymorphism: `Describe (Option α)`, `addAll`,
+  `Add (Vec2 α)`.
+- Controlling instance search: `HMul Nat Money Money`, `HDiv Money Nat Money`.
+- Arrays and indexing: `runningTotals`, `GetElem (Triple α)`.
+- Standard classes: `Ord Version`, `newest`, `Functor Triple`.
+- Coercions: `Coe (Triple α) (List α)`, `CoeFun Line`.
+- Additional conveniences: `ToString Version`.
+- **Final project:** Fibonacci numbers with 2×2 matrices: `Mul Mat2`,
+  `OfNat Mat2 1` and a `power` that works for every type with `*` and `1`.
+
+**Hints:**
+
+- In `Ord Version`, `o₁.then o₂` compares by the next field only when the
+  previous fields are equal.
+- `runningTotals` is easiest with `Id.run do`, a `for` loop and `let mut`.
+- `power` doesn't know anything about matrices: write it for any `α`, and the
+  Fibonacci numbers come for free.
+
+---
+
+## Module 5 — Monads
+
+**File:** `Exercises/Monads.lean` (solutions: `Solutions/Monads.lean`)
+
+**Read:** *Functional Programming in Lean*, chapter 4 ("Monads"). Each
+section of the file starts with an explanation of what you need for its
+exercises, and links to the matching section of the book.
+
+**Key ideas:**
+
+- Computations that may fail (`Option`), report errors (`Except`), keep a
+  state or write a log all follow the same pattern: do one step, then use its
+  result in the next one. That step is `bind`, written `>>=`.
+- The `Monad` class captures the pattern with `pure` and `bind`. A function
+  with a `[Monad m]` argument works in every monad.
+- A `do` block is notation for `>>=`, so it works in every monad, not only in
+  `IO`.
+- `IO` is one monad among others. Its errors can be thrown with `throw` and
+  caught with `try ... catch`.
+
+**Exercises:**
+
+- One API, many applications: `andThenExcept`, `orderPrice`, `label`,
+  `andThenLogged`.
+- The `Monad` type class: `Monad Logged`, `keepIf`.
+- A stack calculator: `exec`, `execAll`, `popExcept`, `divideExcept`.
+- `do` notation: `parseVersion?`, `labelAll`, `sumEvens`.
+- The `IO` monad: `safeSum`.
+- Additional conveniences: `Instr.arity`.
+- **Final project:** a bank whose operations need both a state and errors:
+  `Monad Bank`, `Bank.balance`, `Bank.withdraw`, `Bank.transfer`.
+
+**Hints:**
+
+- For `keepIf`, read the code of `forEach` just above it: the shape is the
+  same.
+- The calculator is written once, with `exec` and `execAll`, for every monad;
+  `popExcept` and `divideExcept` only say how `Except` reports the errors.
+- In `safeSum`, wrap each action in `try ... catch` so that one failure doesn't
+  stop the others.
+- `Bank.transfer` is two lines with `withdraw` and `deposit`: the monad takes
+  care of stopping at the first error.
+
+---
+
+## Module 6 — Functors, applicative functors and monads
+
+**File:** `Exercises/Applicative.lean` (solutions: `Solutions/Applicative.lean`)
+
+**Read:** *Functional Programming in Lean*, chapter 5 ("Functors, Applicative
+Functors, and Monads"). Each section of the file starts with an explanation
+of what you need for its exercises, and links to the matching section of the
+book.
+
+**Key ideas:**
+
+- A structure can `extend` other structures and inherits their fields.
+- An applicative functor combines *independent* computations with `<$>` and
+  `<*>`. It is weaker than a monad, and that is useful: a validation can
+  collect every error instead of stopping at the first one.
+- Applicative functors should follow some laws, and you can prove them for
+  your own instances.
+- `Alternative` adds choice and failure: `<|>`, `failure` and `guard`.
+- Types have types too, organized in universes (`Type`, `Type 1`, ...), which
+  is why classes like `Functor` mention universe levels.
+- From `pure` and `bind` alone, Lean derives `<$>`, `<*>` and the rest of the
+  family.
+
+**Exercises:**
+
+- Structures and inheritance: `duneEbook`, `basketTotal`.
+- Applicative functors: `Applicative Checked`, `checkSeats`, `checkEmail`,
+  `checkBooking`.
+- The applicative contract: `optionMapId`, `checkedPureSeq`, `checkedPureId`.
+- Alternatives: `answer?`, `Alternative Checked`, `checkGroup`.
+- Universes: `swap`.
+- The complete definitions: `Monad WithSettings`, `greeting`.
+- **Final project:** a parser of comma-separated numbers: `Monad Parser`,
+  `Alternative Parser`, `satisfy`, `digit`, `many1`, `number`, `sepBy1`,
+  `numbers`.
+
+**Hints:**
+
+- `checkBooking` is one line: `Booking.mk <$> ... <*> ... <*> ...`.
+- To prove the laws, take the values apart with `cases` and let `rfl` or
+  `simp` finish each case.
+- `many1` is one `p` followed by `many p`.
+- In `sepBy1`, `sep *> p` reads a separator and a `p`, and keeps only the `p`.
+
+---
+
+## Module 7 — Induction: proving things about your programs
 
 **File:** `Exercises/Induction.lean` (solutions: `Solutions/Induction.lean`)
 
@@ -253,7 +420,7 @@ prove that it preserves the length of a list.
 **Hint:** for the final project you will probably need a lemma about
 `length (append xs ys)`. It is already proved in the file as `length_append`.
 
-**When you finish module 4:** `lake build` should succeed **without any
+**When you finish module 7:** `lake build` should succeed **without any
 `sorry`**. That marks the end of the introduction.
 
 ---

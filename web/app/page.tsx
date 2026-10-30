@@ -5,12 +5,12 @@ import { highlightLean } from "@/lib/render";
 
 const checkOutput = `$ lake exe check Propositions
 Propositions (Exercises/Propositions.lean)
-  ✅ ex1
-  ✅ ex2
-  ❌ ex3: error at line 76: Type mismatch …
-  ⏳ ex4: still has \`sorry\`
-  ⏳ ex5: still has \`sorry\`
-  2/5 solved`;
+  ✅ reverseFact
+  ✅ takeFact
+  ❌ bigPower: error at line 121: …
+  ⏳ zeroTimes: still has \`sorry\`
+  …
+  2/20 solved`;
 
 export default async function Home() {
   const example = await highlightLean(`theorem and_swap (p q : Prop) : p ∧ q → q ∧ p := by

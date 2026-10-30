@@ -217,6 +217,23 @@ def checkModule (dir : String) (module : String) : IO (Nat × Nat) := do
   IO.println s!"  {solved}/{exs.length} solved"
   return (solved, exs.length)
 
+/-- Checks a module in a child process, and prints its report. Each module
+loads its imports again, and Lean never frees them, so checking every module
+in one process would need about 1 GB of memory per module. -/
+def checkInChild (dir : String) (module : String) : IO (Nat × Nat) := do
+  let out ← IO.Process.output
+    { cmd := (← IO.appPath).toString, args := #["--dir", dir, module] }
+  match out.stdout.splitOn "\nTotal: " with
+  | [report, total] =>
+    match ((total.splitOn " ").headD "").splitOn "/" with
+    | [s, t] =>
+      if let (some s, some t) := (s.toNat?, t.toNat?) then
+        IO.print report
+        return (s, t)
+    | _ => pure ()
+  | _ => pure ()
+  throw <| IO.userError s!"checking {module} failed:\n{out.stdout}{out.stderr}"
+
 /-- The modules, in the order `Solutions.lean` imports them. -/
 def allModules : IO (List String) := do
   let root ← IO.FS.readFile "Solutions.lean"
@@ -242,7 +259,8 @@ def main (args : List String) : IO UInt32 := do
   let mut solved := 0
   let mut total := 0
   for module in modules do
-    let (s, t) ← checkModule dir module
+    let (s, t) ← if modules.length == 1 then checkModule dir module
+      else checkInChild dir module
     solved := solved + s
     total := total + t
   IO.println s!"\nTotal: {solved}/{total} exercises solved"
