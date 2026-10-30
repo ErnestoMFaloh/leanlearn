@@ -18,21 +18,24 @@ open each module in the Lean playground and solve it in your browser.
 | # | Topic | Exercises | Solutions |
 |---|-------|-----------|-----------|
 | 1 | Getting to know Lean: functions, structures, inductive types, polymorphism | [`Exercises/GettingToKnow.lean`](Exercises/GettingToKnow.lean) | [solutions](Solutions/GettingToKnow.lean) |
-| 2 | Hello, World!: programs with `IO`, `do` blocks, a `cat` clone | [`Exercises/HelloWorld.lean`](Exercises/HelloWorld.lean) | [solutions](Solutions/HelloWorld.lean) |
-| 3 | Propositions as types, basic tactics, propositional logic | [`Exercises/Propositions.lean`](Exercises/Propositions.lean) | [solutions](Solutions/Propositions.lean) |
-| 4 | Induction: proving properties of your own programs | [`Exercises/Induction.lean`](Exercises/Induction.lean) | [solutions](Solutions/Induction.lean) |
+| 2 | Hello, World!: programs with `IO`, `do` blocks, a `wc` clone | [`Exercises/HelloWorld.lean`](Exercises/HelloWorld.lean) | [solutions](Solutions/HelloWorld.lean) |
+| 3 | Propositions, proofs and indexing: propositions as types, basic tactics, safe indexing | [`Exercises/Propositions.lean`](Exercises/Propositions.lean) | [solutions](Solutions/Propositions.lean) |
+| 4 | Overloading and type classes: instances, arrays, standard classes, coercions | [`Exercises/TypeClasses.lean`](Exercises/TypeClasses.lean) | [solutions](Solutions/TypeClasses.lean) |
+| 5 | Monads: `Option`, `Except`, state and logs as one pattern, `do` in every monad | [`Exercises/Monads.lean`](Exercises/Monads.lean) | [solutions](Solutions/Monads.lean) |
+| 6 | Functors, applicative functors and monads: validation, alternatives, a parser | [`Exercises/Applicative.lean`](Exercises/Applicative.lean) | [solutions](Solutions/Applicative.lean) |
+| 7 | Induction: proving properties of your own programs | [`Exercises/Induction.lean`](Exercises/Induction.lean) | [solutions](Solutions/Induction.lean) |
 
 Work in `Exercises/`. To see how you are doing, run:
 
 ```
 $ lake exe check Propositions
 Propositions (Exercises/Propositions.lean)
-  ✅ ex1
-  ✅ ex2
-  ❌ ex3: error at line 76: Type mismatch hp has type p but is expected to have type q
-  ⏳ ex4: still has `sorry`
-  ⏳ ex5: still has `sorry`
-  2/5 solved
+  ✅ reverseFact
+  ✅ takeFact
+  ❌ bigPower: error at line 121: …
+  ⏳ zeroTimes: still has `sorry`
+  …
+  2/20 solved
 ```
 
 The checker never compares your answer with the solution as text, because
